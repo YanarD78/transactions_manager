@@ -45,6 +45,7 @@ psql -U your_postgres_user -d your_database_name -f schema.sql
 ```
 DB_NAME=your_database_name
 DB_USER=your_postgres_user
+DB_PASSWORD=your_database_password
 ```
 
 6. Run the application:
