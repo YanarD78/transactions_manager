@@ -1,0 +1,78 @@
+import bcrypt
+from decimal import Decimal
+from app.transaction import Transaction
+
+class Manager:
+    def __init__(self, database):
+        self.database = database
+        self.user_id = None
+
+    def add_user(self, username, password):
+        if len(username) < 6:
+            raise ValueError("Username must be at least 6 characters long")
+        if len(password) < 8:
+            raise ValueError("Password must be at least 8 characters long")
+        bytes_password = password.encode('utf-8')
+        hashed = bcrypt.hashpw(bytes_password, bcrypt.gensalt())
+        self.database.add_user(username, hashed)
+
+    def login(self, username, password):
+        user = self.database.find_user(username)
+        if user is not None:
+            if bcrypt.checkpw(password.encode('utf-8'), bytes(user[2])):
+                self.user_id = user[0]
+                return self.user_id
+            else:
+                raise ValueError("Invalid password. Please try again")
+        else:
+            raise ValueError("User not found.")
+
+    def get_all_transactions(self):
+        return self.database.get_all_transactions(self.user_id) or []
+
+    def get_transactions(self, value, kind):
+        if value == "category":
+            return list(self.database.get_transactions_category(kind, self.user_id))
+        elif value == "type_of":
+            return list(self.database.get_transactions_type(kind, self.user_id))
+        else:
+            return None
+        
+    def statistic(self, filter_by):
+        if filter_by == "type_of":
+            return self.database.statistic_type(self.user_id)
+        elif filter_by == "category":
+            return self.database.statistic_category(self.user_id)
+        else:
+            return None
+        
+    def delete_transaction(self, choice):
+        transactions = list(self.database.get_all_transactions(self.user_id))
+        try:
+            number = int(choice)
+            if 1 <= number <= len(transactions):
+                choosen = transactions[number - 1]
+                transaction_id = choosen[0]
+                self.database.delete_transaction(transaction_id, self.user_id)
+            else:
+                raise ValueError("Transaction number out of range")
+        except ValueError:
+            raise ValueError("Invalid input. Please enter a valid transaction number")
+    
+    def add_transaction(self, transaction_type, amount, category, description):
+        if transaction_type not in ("expense", "income"):
+            raise ValueError("Invalid transaction type. Choose 'income' or 'expense'")
+        try:
+            amount = Decimal(amount)
+            if amount <= 0:
+                raise ValueError()
+        except ValueError:
+            raise ValueError("Invalid amount. Please enter a valid number")
+
+        VALID_CATEGORIES = ("food", "transport", "entertainment", 
+                            "health", "communications", "clothes and shoes")
+        if category in VALID_CATEGORIES:
+            transaction = Transaction(transaction_type, amount, category, self.user_id, description)
+            self.database.add_transaction(transaction)
+        else:
+            raise ValueError(f"Invalid category. Choose from: {', '.join(VALID_CATEGORIES)}.")
