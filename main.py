@@ -13,7 +13,11 @@ if not db_name or not user:
     raise ValueError("DB_USER or DB_NAME does not exist in .env")
 
 print('-'*10 + "Finance Manager" + 10*'-')
-db = DBmanager(db_name, user, password)
+try:
+    db = DBmanager(db_name, user, password)
+except ConnectionError as e:
+    print(e)
+    exit(1)
 manager = Manager(db)
 client = CLI(manager)
 user_id = client.user()

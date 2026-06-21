@@ -21,10 +21,10 @@ class CLI:
                 username = input("Enter a username : ")
                 password = input("Enter a password : ")
                 try:
-                    id = self.manager.login(username, password)
-                    if id is not None:
+                    user_id = self.manager.login(username, password)
+                    if user_id is not None:
                         print("< - Login successful - >")
-                        return id
+                        return user_id
                     else:
                         continue
                 except ValueError:
@@ -85,18 +85,18 @@ class CLI:
                     if transactions:
                         for i, line in enumerate(transactions, start=1):
                             print(f"{i}. [{line[1]}] {line[3]}: {line[2]}")
-                        choice = input("Enter transaction number : ")
+                        number = input("Enter transaction number : ")
                         try:
-                            self.manager.delete_transaction(choice)
-                            print(f'Transaction #{choice} has been deleted')
+                            self.manager.delete_transaction(number)
+                            print(f'Transaction #{number} has been deleted')
                         except ValueError as e:
                             print(f"!!! {e}")
                     else:
                         print("No transactions available to delete")
                 elif choice == "statistic":
-                    word = input("Filter statistics by (type_of / category) : ")
+                    word = input("Filter statistics by (type / category) : ")
                     try:
-                        if word in ("type_of", "category"):
+                        if word in ("type", "category"):
                             transactions = self.manager.statistic(word)
                             if transactions:
                                 for line in transactions:
@@ -108,7 +108,7 @@ class CLI:
                     except ValueError:
                         print("No transactions found")
                 elif choice == "exit":
-                    continue
+                    pass
                 else:
                     print("Unknown command")
                     continue

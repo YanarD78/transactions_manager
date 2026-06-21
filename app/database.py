@@ -2,13 +2,16 @@ import psycopg2
 
 class DBmanager:
     def __init__(self, db_name, user, password=None, host="localhost", port=5432):
-        self.connection = psycopg2.connect(
+        try:
+            self.connection = psycopg2.connect(
             database=db_name,
             user=user,
             password=password,
             host=host,
             port=port
-        )
+            )
+        except psycopg2.OperationalError:
+            raise ConnectionError(f"Failed to connect to database: {db_name}")
         self.cursor = self.connection.cursor()
     
     def drop_connection(self):

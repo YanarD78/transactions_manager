@@ -2,6 +2,9 @@ import bcrypt
 from decimal import Decimal
 from app.transaction import Transaction
 
+VALID_CATEGORIES = ("food", "transport", "entertainment", 
+                        "health", "communications", "clothes and shoes")
+
 class Manager:
     def __init__(self, database):
         self.database = database
@@ -39,7 +42,7 @@ class Manager:
             return None
         
     def statistic(self, filter_by):
-        if filter_by == "type_of":
+        if filter_by == "type":
             return self.database.statistic_type(self.user_id)
         elif filter_by == "category":
             return self.database.statistic_category(self.user_id)
@@ -50,14 +53,14 @@ class Manager:
         transactions = list(self.database.get_all_transactions(self.user_id))
         try:
             number = int(choice)
-            if 1 <= number <= len(transactions):
-                choosen = transactions[number - 1]
-                transaction_id = choosen[0]
-                self.database.delete_transaction(transaction_id, self.user_id)
-            else:
-                raise ValueError("Transaction number out of range")
         except ValueError:
             raise ValueError("Invalid input. Please enter a valid transaction number")
+        if not (1 <= number <= len(transactions)):
+            raise ValueError("Transaction number out of range")
+        else:
+            choosen = transactions[number - 1]
+            transaction_id = choosen[0]
+            self.database.delete_transaction(transaction_id, self.user_id)
     
     def add_transaction(self, transaction_type, amount, category, description):
         if transaction_type not in ("expense", "income"):
@@ -69,8 +72,6 @@ class Manager:
         except ValueError:
             raise ValueError("Invalid amount. Please enter a valid number")
 
-        VALID_CATEGORIES = ("food", "transport", "entertainment", 
-                            "health", "communications", "clothes and shoes")
         if category in VALID_CATEGORIES:
             transaction = Transaction(transaction_type, amount, category, self.user_id, description)
             self.database.add_transaction(transaction)
