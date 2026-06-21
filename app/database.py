@@ -4,7 +4,7 @@ def db_error_handler(func):
     def wrapper(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)
-        except Exception:
+        except psycopg2.Error:
             if self.connection:
                 self.connection.rollback()
             raise

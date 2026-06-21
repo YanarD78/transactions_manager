@@ -1,5 +1,3 @@
-from psycopg2.errors import UniqueViolation
-
 class CLI:
     def __init__(self, manager):
         self.manager = manager
