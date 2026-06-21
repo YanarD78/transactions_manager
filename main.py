@@ -1,5 +1,3 @@
-from psycopg2.errors import UniqueViolation
-
 def run_app():
     from dotenv import load_dotenv
     import os
