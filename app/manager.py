@@ -1,11 +1,14 @@
 import bcrypt
 from decimal import Decimal
 from app.transaction import Transaction
-
-VALID_CATEGORIES = ("food", "transport", "entertainment", 
-                        "health", "communications", "clothes and shoes")
+from psycopg2.errors import UniqueViolation
 
 class Manager:
+    VALID_CATEGORIES = frozenset({
+    "food", "transport", "entertainment", 
+    "health", "communications", "clothes and shoes"
+    })
+        
     def __init__(self, database):
         self.database = database
         self.user_id = None
@@ -16,8 +19,13 @@ class Manager:
         if len(password) < 8:
             raise ValueError("Password must be at least 8 characters long")
         bytes_password = password.encode('utf-8')
-        hashed = bcrypt.hashpw(bytes_password, bcrypt.gensalt())
-        self.database.add_user(username, hashed)
+        salt = bcrypt.gensalt(rounds=12)
+        hashed = bcrypt.hashpw(bytes_password, salt)
+        hashed_str = hashed.decode('utf-8')
+        try:
+            self.database.add_user(username, hashed_str)
+        except UniqueViolation:
+            raise ValueError("This username is already taken. Choose another one")
 
     def login(self, username, password):
         user = self.database.find_user(username)
@@ -67,13 +75,13 @@ class Manager:
             raise ValueError("Invalid transaction type. Choose 'income' or 'expense'")
         try:
             amount = Decimal(amount)
-            if amount <= 0:
-                raise ValueError()
         except ValueError:
             raise ValueError("Invalid amount. Please enter a valid number")
+        if amount <= 0:
+            raise ValueError("Invalid amount. Please enter a valid number")
 
-        if category in VALID_CATEGORIES:
+        if category not in self.VALID_CATEGORIES:
+            raise ValueError(f"Invalid category. Choose from: {', '.join(self.VALID_CATEGORIES)}.")
+        else:
             transaction = Transaction(transaction_type, amount, category, self.user_id, description)
             self.database.add_transaction(transaction)
-        else:
-            raise ValueError(f"Invalid category. Choose from: {', '.join(VALID_CATEGORIES)}.")

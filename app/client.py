@@ -1,3 +1,5 @@
+from psycopg2.errors import UniqueViolation
+
 class CLI:
     def __init__(self, manager):
         self.manager = manager
@@ -45,8 +47,7 @@ class CLI:
                 category = input("Category : ")
                 description = input("Description (enter to skip) : ")
                 try:
-                    self.manager.add_transaction(transaction_type, amount, category, \
-                                                description)
+                    self.manager.add_transaction(transaction_type, amount, category, description)
                     print("Saved")
                 except ValueError as e:
                     print(f"!!! {e}")
@@ -55,14 +56,14 @@ class CLI:
                 print("Options: All / Type / Category / Delete /\n Statistic / Exit")
                 choice = input("> ").strip().lower()
                 if choice == "category":
-                    print("Available categories:\nfood / transport / entertainment / health / communications / clothes and shoes")
+                    print(f"Available categories:\n{", ".join(self.manager.VALID_CATEGORIES)}")
                     category = input("> ").strip().lower()
                     transactions = self.manager.get_transactions("category", category)
-                    if transactions:
+                    if not transactions:
+                        print("No transactions found in this category")
+                    else:
                         for i, line in enumerate(transactions, start=1):
                             print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
-                    else:
-                        print("No transactions found in this category")
                 elif choice == "type":
                     print("Available types:\nincome / expense")
                     type_of = input("> ").strip().lower()
@@ -104,7 +105,7 @@ class CLI:
                             else:
                                 print("No data available for statistics")
                         else:
-                            print("!!! Invalid option. Please choose 'type_of' or 'category'")
+                            print("!!! Invalid option. Please choose 'type' or 'category'")
                     except ValueError:
                         print("No transactions found")
                 elif choice == "exit":
