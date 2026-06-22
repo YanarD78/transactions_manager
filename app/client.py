@@ -16,6 +16,7 @@ class CLI:
                 except ValueError as e:
                     print(f"!!! {e}")
                 continue
+            
             elif a == "login":
                 print("login" + "-"*5)
                 username = input("Enter a username : ")
@@ -38,6 +39,8 @@ class CLI:
         while True:
             print("Commands: add / transactions / exit")
             command = input("> ").strip().lower()
+
+
             if command == "add":
                 print("Enter transaction details (type, amount, category, description):")
                 transaction_type = input("Type (income/expense): ")
@@ -49,6 +52,9 @@ class CLI:
                     print("Saved")
                 except ValueError as e:
                     print(f"!!! {e}")
+                except TypeError as e:
+                    print(f"!!! {e}")
+
 
             elif command == "transactions":
                 print("Options: All / Type / Category / Delete /\n Statistic / Exit")
@@ -62,6 +68,7 @@ class CLI:
                     else:
                         for i, line in enumerate(transactions, start=1):
                             print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
+
                 elif choice == "type":
                     print("Available types:\nincome / expense")
                     type_of = input("> ").strip().lower()
@@ -71,6 +78,7 @@ class CLI:
                             print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
                     else:
                         print("No transactions found for this type")
+
                 elif choice == "all":
                     transactions = self.manager.get_all_transactions()
                     if transactions:
@@ -78,6 +86,7 @@ class CLI:
                             print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
                     else:
                         print("No transactions found")
+
                 elif choice == "delete":
                     transactions = self.manager.get_all_transactions()
                     print("Select a transaction number to delete")
@@ -92,6 +101,7 @@ class CLI:
                             print(f"!!! {e}")
                     else:
                         print("No transactions available to delete")
+
                 elif choice == "statistic":
                     word = input("Filter statistics by (type / category) : ")
                     try:
@@ -106,11 +116,15 @@ class CLI:
                             print("!!! Invalid option. Please choose 'type' or 'category'")
                     except ValueError:
                         print("No transactions found")
+
                 elif choice == "exit":
                     pass
+
                 else:
                     print("Unknown command")
                     continue
+
+
             elif command == "exit":
                 break
             else:

@@ -1,5 +1,5 @@
 import bcrypt
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from app.transaction import Transaction
 from psycopg2.errors import UniqueViolation
 
@@ -77,6 +77,8 @@ class Manager:
             amount = Decimal(amount)
         except ValueError:
             raise ValueError("Invalid amount. Please enter a valid number")
+        except InvalidOperation:
+            raise TypeError("Invalid amount. Please enter a valid value")
         if amount <= 0:
             raise ValueError("Invalid amount. Please enter a valid number")
 
