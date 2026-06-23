@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
+from functools import wraps
 
 def db_error_handler(func):
+    @wraps(func)
     def wrapper(self, *args, **kwargs):
         try:
             return func(self, *args, **kwargs)

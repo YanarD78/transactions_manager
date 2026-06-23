@@ -1,17 +1,16 @@
 import sqlite3
 from pathlib import Path
-from app.base import db_error_handler, BaseDBManager
+from src.db.base import db_error_handler, BaseDBManager
 
 class DBmanager(BaseDBManager):
     def __init__(self, db_name):
-        current_dir = Path()
-        found_file = next(current_dir.rglob(db_name), None)
-        if found_file:
-            self.connection = sqlite3.connect(db_name)
-            self.cursor = self.connection.cursor()
-            self.cursor.execute("PRAGMA foreign_keys = ON")
-        else:
-            self._create(db_name)
+        db_path = Path(db_name).resolve()
+        db_exists = db_path.exists()
+        self.connection = sqlite3.connect(db_path)
+        self.cursor = self.connection.cursor()
+        self.cursor.execute("PRAGMA foreign_keys = ON")
+        if not db_exists:
+            self._create()
 
     def drop_connection(self):
         if self.connection:
@@ -81,14 +80,11 @@ class DBmanager(BaseDBManager):
     
 
 
-    def _create(self, db_name):
-        current_dir = Path()
-        file = next(current_dir.rglob('schema_sqlite.sql'), None)
-        if not file:
-            raise FileNotFoundError("schema_sqlite.sql does not exist")
-        self.connection = sqlite3.connect(db_name)
-        self.cursor = self.connection.cursor()
-        with open(file, 'r', encoding='utf-8') as sql_file:
+    def _create(self):
+        schema_path = Path(__file__).parent / 'schema_sqlite.sql'
+        if not schema_path.exists():
+            raise FileNotFoundError(f"Schema file not found at: {schema_path.resolve()}")
+        with open(schema_path, 'r', encoding='utf-8') as sql_file:
             sql_script = sql_file.read()
         self.cursor.executescript(sql_script)
-        self.cursor.execute("PRAGMA foreign_keys = ON")
+        self.connection.commit()

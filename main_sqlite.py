@@ -1,7 +1,7 @@
 def run_app():
-    from app.client import CLI
-    from app.database_sqlite import DBmanager
-    from app.manager import Manager
+    from src.clients.cli.client import CLI
+    from src.db.database_sqlite import DBmanager
+    from src.core.manager import Manager
 
 
     print('-'*10 + "Finance Manager" + 10*'-')

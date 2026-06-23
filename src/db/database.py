@@ -1,4 +1,4 @@
-from app.base import db_error_handler
+from src.db.base import db_error_handler
 import psycopg2
 
 class DBmanager:

@@ -1,9 +1,9 @@
 def run_app():
     from dotenv import load_dotenv
     import os
-    from app.client import CLI
-    from app.database import DBmanager
-    from app.manager import Manager
+    from src.clients.cli.client import CLI
+    from src.db.database import DBmanager
+    from src.core.manager import Manager
 
     load_dotenv()
     db_name = os.getenv("DB_NAME")
@@ -11,7 +11,7 @@ def run_app():
     password = os.getenv("DB_PASSWORD")
 
     if not db_name or not user:
-        raise ValueError("DB_USER or DB_NAME does not exist in .env")
+       raise ValueError("DB_USER or DB_NAME does not exist in .env")
 
     print('-'*10 + "Finance Manager" + 10*'-')
     db = None

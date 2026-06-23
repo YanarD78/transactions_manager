@@ -1,5 +1,6 @@
 __pycache__/
 .env
+*.db
 venv/
 # Byte-compiled / optimized / DLL files
 __pycache__/

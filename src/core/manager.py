@@ -1,6 +1,6 @@
 import bcrypt
 from decimal import Decimal, InvalidOperation
-from app.transaction import Transaction
+from src.core.transaction import Transaction
 
 class Manager:
     VALID_CATEGORIES = frozenset({
