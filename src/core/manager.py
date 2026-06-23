@@ -1,7 +1,6 @@
 import bcrypt
 from decimal import Decimal, InvalidOperation
 from app.transaction import Transaction
-from psycopg2.errors import UniqueViolation
 
 class Manager:
     VALID_CATEGORIES = frozenset({
@@ -24,19 +23,19 @@ class Manager:
         hashed_str = hashed.decode('utf-8')
         try:
             self.database.add_user(username, hashed_str)
-        except UniqueViolation:
-            raise ValueError("This username is already taken. Choose another one")
+        except ValueError as e:
+            raise ValueError(e)
 
     def login(self, username, password):
         user = self.database.find_user(username)
         if user is not None:
-            if bcrypt.checkpw(password.encode('utf-8'), bytes(user[2])):
+            if bcrypt.checkpw(password.encode('utf-8'), user[2].encode('utf-8')):
                 self.user_id = user[0]
                 return self.user_id
             else:
-                raise ValueError("Invalid password. Please try again")
+                raise ValueError("Invalid username or password")
         else:
-            raise ValueError("User not found.")
+            raise ValueError("Invalid username or password")
 
     def get_all_transactions(self):
         return self.database.get_all_transactions(self.user_id) or []

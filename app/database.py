@@ -1,14 +1,5 @@
+from app.base import db_error_handler
 import psycopg2
-
-def db_error_handler(func):
-    def wrapper(self, *args, **kwargs):
-        try:
-            return func(self, *args, **kwargs)
-        except psycopg2.Error:
-            if self.connection:
-                self.connection.rollback()
-            raise
-    return wrapper
 
 class DBmanager:
     def __init__(self, db_name, user, password=None, host="localhost", port=5432):
@@ -54,9 +45,12 @@ class DBmanager:
 
     @db_error_handler
     def add_user(self, username, hashed):
-        sql_query = "INSERT INTO users (username, hash) VALUES (%s, %s)"
-        self.cursor.execute(sql_query, (username, hashed))
-        self.connection.commit()
+        try:
+            sql_query = "INSERT INTO users (username, hash) VALUES (%s, %s)"
+            self.cursor.execute(sql_query, (username, hashed))
+            self.connection.commit()
+        except psycopg2.errors.UniqueViolation:
+            raise ValueError("This username is already taken. Choose another one")
 
     @db_error_handler
     def find_user(self, username):
