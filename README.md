@@ -1,19 +1,19 @@
 # Finance Manager
 
-A command-line application for tracking personal income and expenses, with user authentication and category-based statistics.
+A command-line application for tracking personal income and expenses. Supports two database backends — SQLite (default) and PostgreSQL — switchable via a CLI flag.
 
 ## Features
 
-- Register and log in with a password (bcrypt hashing)
-- Add transactions with type, amount, category and description
-- View all transactions or filter by type or category
-- Delete transactions
-- View spending statistics by type or category
+- User registration and login with bcrypt password hashing
+- Add transactions with type, amount, category, and description
+- View all transactions or filter by type / category
+- Delete transactions by number
+- Spending statistics grouped by type or category
 
 ## Requirements
 
 - Python 3.8+
-- PostgreSQL
+- PostgreSQL (only if using the `--db postgres` flag)
 - Dependencies listed in `requirements.txt`
 
 ## Setup
@@ -35,34 +35,58 @@ source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-4. Create a PostgreSQL database and initialize the schema:
+4. *(PostgreSQL only)* Create a database, initialize the schema, and create a `.env` file:
 ```bash
-psql -U your_postgres_user -c "CREATE DATABASE your_database_name;"
-psql -U your_postgres_user -d your_database_name -f schema.sql
+psql -U your_user -c "CREATE DATABASE your_db;"
+psql -U your_user -d your_db -f src/db/schema.sql
+```
+```env
+DB_NAME=your_db
+DB_USER=your_user
+DB_PASSWORD=your_password
 ```
 
-5. Create a `.env` file in the project root:
-```
-DB_NAME=your_database_name
-DB_USER=your_postgres_user
-DB_PASSWORD=your_database_password
-```
+## Running
 
-6. Run the application:
+SQLite is used by default — no configuration needed:
 ```bash
 python main.py
 ```
 
+To use PostgreSQL:
+```bash
+python main.py --db postgres
+```
+
 ## Usage
 
-On launch, you will be prompted to log in or register. After authentication, the following commands are available:
+On launch you will be prompted to log in or register. After authentication:
 
-- `add` — add a new transaction
-- `transactions` — view, filter, delete transactions or show statistics
-- `exit` — quit the application
+| Command | Description |
+|---|---|
+| `add` | Add a new transaction |
+| `transactions` | View, filter, delete transactions or show statistics |
+| `exit` | Quit the application |
+
+Under `transactions`, available options are: `all`, `type`, `category`, `delete`, `statistic`.
 
 ### Transaction types
 `income`, `expense`
 
 ### Categories
 `food`, `transport`, `entertainment`, `health`, `communications`, `clothes and shoes`
+
+## Project Structure
+
+```
+src/
+├── clients/
+│   └── cli/        # Terminal interface
+├── core/
+│   ├── manager.py  # Business logic
+│   └── transaction.py
+└── db/
+    ├── base.py     # Abstract DB interface
+    ├── database.py         # PostgreSQL implementation
+    └── database_sqlite.py  # SQLite implementation
+```
