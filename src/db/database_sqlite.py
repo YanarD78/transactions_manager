@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from src.db.base import db_error_handler, BaseDBManager
+from src.db.base import BaseDBManager, db_error_handler
 
 class DBmanager(BaseDBManager):
     def __init__(self, db_name):

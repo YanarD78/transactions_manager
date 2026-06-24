@@ -1,7 +1,7 @@
-from src.db.base import db_error_handler
+from src.db.base import BaseDBManager, db_error_handler
 import psycopg2
 
-class DBmanager:
+class DBmanager(BaseDBManager):
     def __init__(self, db_name, user, password=None, host="localhost", port=5432):
         try:
             self.connection = psycopg2.connect(

@@ -38,15 +38,17 @@ class Manager:
             raise ValueError("Invalid username or password")
 
     def get_all_transactions(self):
-        return self.database.get_all_transactions(self.user_id) or []
+        rows = self.database.get_all_transactions(self.user_id) or []
+        return [Transaction.from_row(row) for row in rows]
 
     def get_transactions(self, value, kind):
         if value == "category":
-            return list(self.database.get_transactions_category(kind, self.user_id))
+            rows = self.database.get_transactions_category(kind, self.user_id)
         elif value == "type_of":
-            return list(self.database.get_transactions_type(kind, self.user_id))
+            rows = self.database.get_transactions_type(kind, self.user_id)
         else:
             return None
+        return [Transaction.from_row(row) for row in rows]
         
     def statistic(self, filter_by):
         if filter_by == "type":
@@ -57,7 +59,8 @@ class Manager:
             return None
         
     def delete_transaction(self, choice):
-        transactions = list(self.database.get_all_transactions(self.user_id))
+        rows = self.database.get_all_transactions(self.user_id) or []
+        transactions = [Transaction.from_row(row) for row in rows]
         try:
             number = int(choice)
         except ValueError:
@@ -66,7 +69,7 @@ class Manager:
             raise ValueError("Transaction number out of range")
         else:
             choosen = transactions[number - 1]
-            transaction_id = choosen[0]
+            transaction_id = choosen.id
             self.database.delete_transaction(transaction_id, self.user_id)
     
     def add_transaction(self, transaction_type, amount, category, description):

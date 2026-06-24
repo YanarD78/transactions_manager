@@ -66,24 +66,24 @@ class CLI:
                     if not transactions:
                         print("No transactions found in this category")
                     else:
-                        for i, line in enumerate(transactions, start=1):
-                            print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
+                        for i, t in enumerate(transactions, start=1):
+                            print(f"{i}. [{t.created_at}] — {t.category}: {t.amount} ({t.description})")
 
                 elif choice == "type":
                     print("Available types:\nincome / expense")
                     type_of = input("> ").strip().lower()
                     transactions = self.manager.get_transactions("type_of", type_of)
                     if transactions:
-                        for i, line in enumerate(transactions, start=1):
-                            print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
+                        for i, t in enumerate(transactions, start=1):
+                            print(f"{i}. [{t.created_at}] — {t.category}: {t.amount} ({t.description})")
                     else:
                         print("No transactions found for this type")
 
                 elif choice == "all":
                     transactions = self.manager.get_all_transactions()
                     if transactions:
-                        for i, line in enumerate(transactions, start=1):
-                            print(f"{i}. [{line[1]}] — {line[3]}: {line[2]} {line[4]} ({line[5]})")
+                        for i, t in enumerate(transactions, start=1):
+                            print(f"{i}. [{t.created_at}] — {t.category}: {t.amount} ({t.description})")
                     else:
                         print("No transactions found")
 
@@ -91,8 +91,8 @@ class CLI:
                     transactions = self.manager.get_all_transactions()
                     print("Select a transaction number to delete")
                     if transactions:
-                        for i, line in enumerate(transactions, start=1):
-                            print(f"{i}. [{line[1]}] {line[3]}: {line[2]}")
+                        for i, t in enumerate(transactions, start=1):
+                            print(f"{i}. [{t.created_at}] — {t.category}: {t.amount} ({t.description})")
                         number = input("Enter transaction number : ")
                         try:
                             self.manager.delete_transaction(number)
@@ -108,8 +108,8 @@ class CLI:
                         if word in ("type", "category"):
                             transactions = self.manager.statistic(word)
                             if transactions:
-                                for line in transactions:
-                                    print(f"{line[0]} : {line[1]}")
+                                for name, total in transactions:
+                                    print(f"{name} : {total}")
                             else:
                                 print("No data available for statistics")
                         else:
